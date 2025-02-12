@@ -1,2 +1,2 @@
-Just a simple java calculator app with GUI 
+            Just a simple java calculator app with GUI 
 __________________________________________
