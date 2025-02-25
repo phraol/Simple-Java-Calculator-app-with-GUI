@@ -1,0 +1,99 @@
+import javax.swing.*;
+import java.awt.*;
+import java.text.DecimalFormat;
+
+public class SimpleUbuntuCalculator {
+    private JFrame frame = new JFrame("Calculator");
+    private JTextField display = new JTextField("0"), history = new JTextField("");
+    private String expression = "";
+
+    public SimpleUbuntuCalculator() {
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(300, 450);
+        frame.setLayout(new BorderLayout(5, 5));
+        frame.getContentPane().setBackground(new Color(48, 48, 48));
+
+        display.setEditable(false);
+        display.setFont(new Font("Ubuntu", Font.PLAIN, 24));
+        display.setHorizontalAlignment(SwingConstants.RIGHT);
+        display.setBackground(new Color(38, 38, 38));
+        display.setForeground(Color.WHITE);
+        display.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        frame.add(display, BorderLayout.NORTH);
+
+        JPanel panel = new JPanel(new GridLayout(6, 4, 4, 4));
+        panel.setBackground(new Color(48, 48, 48));
+
+        // Changed "←" to "BS" for reliable display
+        String[] buttons = {"C", "BS", "(", ")", "7", "8", "9", "/", "4", "5", "6", "*", "1", "2", "3", "-", "0", ".", "+", "="};
+        for (String text : buttons) {
+            JButton btn = new JButton(text);
+            btn.setFont(new Font("Ubuntu", Font.PLAIN, 18));
+            btn.setOpaque(true);
+            btn.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+            btn.setBackground("0123456789.".contains(text) ? new Color(66, 66, 66) : text.equals("=") ? new Color(237, 138, 42) : new Color(80, 80, 80));
+            btn.setForeground(Color.WHITE);
+            btn.addActionListener(e -> handleButton(text));
+            panel.add(btn);
+        }
+
+        history.setEditable(false);
+        history.setFont(new Font("Ubuntu", Font.PLAIN, 12));
+        history.setHorizontalAlignment(SwingConstants.RIGHT);
+        history.setBackground(new Color(48, 48, 48));
+        history.setForeground(new Color(150, 150, 150));
+        history.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        panel.add(history, new GridBagConstraints() {{ gridx = 0; gridy = 5; gridwidth = 4; fill = GridBagConstraints.HORIZONTAL; }});
+
+        frame.add(panel, BorderLayout.CENTER);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+
+    private void handleButton(String cmd) {
+        if (cmd.equals("=")) {
+            try {
+                String result = simpleCalculate(expression);
+                history.setText(expression + " = " + result);
+                display.setText(result);
+                expression = result;
+            } catch (Exception ex) {
+                display.setText("Error");
+                history.setText(expression);
+                expression = "";
+            }
+        } else if (cmd.equals("C")) {
+            expression = "";
+            display.setText("0");
+            history.setText("");
+        } else if (cmd.equals("BS")) { // Updated to match "BS" label
+            if (expression.length() > 0) {
+                expression = expression.substring(0, expression.length() - 1);
+                display.setText(expression.isEmpty() ? "0" : expression);
+            }
+            history.setText(expression);
+        } else {
+            expression += cmd;
+            display.setText(expression);
+            history.setText(expression);
+        }
+    }
+
+    private String simpleCalculate(String expr) {
+        String[] parts = expr.split("(?<=\\d)(?=\\D)|(?<=\\D)(?=\\d)");
+        double result = Double.parseDouble(parts[0]);
+        for (int i = 1; i < parts.length - 1; i += 2) {
+            String op = parts[i];
+            double num = Double.parseDouble(parts[i + 1]);
+            if (op.equals("+")) result += num;
+            else if (op.equals("-")) result -= num;
+            else if (op.equals("*")) result *= num;
+            else if (op.equals("/")) result /= num;
+        }
+        return new DecimalFormat("#.#####").format(result);
+    }
+
+    public static void main(String[] args) {
+        new SimpleCalculator();
+    }
+}
